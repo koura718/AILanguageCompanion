@@ -3,7 +3,7 @@ import os
 from chat_manager import ChatManager
 from llm_client import LLMClient
 from i18n_utils import I18nManager
-from ui_components import render_message, render_sidebar, render_export_section
+from ui_components import render_message, render_sidebar
 
 # Initialize session state
 if "chat_manager" not in st.session_state:
@@ -57,9 +57,6 @@ def main():
                 [f"Chat {session.created_at}" for session in chat_manager.history].index(selected_chat)
             ].id
             chat_manager.load_chat(chat_id)
-
-    # Export section
-    render_export_section(i18n, chat_manager)
 
     # Display chat messages
     for message in chat_manager.get_messages(include_system=False):
