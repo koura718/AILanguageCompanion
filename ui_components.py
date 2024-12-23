@@ -11,7 +11,7 @@ def render_message(role: str, content: str):
         with st.chat_message(role):
             st.write(content)
 
-def render_sidebar(i18n):
+def render_sidebar(i18n, chat_manager):
     with st.sidebar:
         st.title(i18n.get_text("settings"))
 
@@ -41,11 +41,9 @@ def render_sidebar(i18n):
             key="openrouter_key"
         )
 
-        return language, model, openai_key, openrouter_key
+        st.markdown("---")
 
-def render_export_section(i18n, chat_manager):
-    st.sidebar.markdown("---")
-    with st.sidebar:
+        # Export section
         export_format = st.selectbox(
             i18n.get_text("export_format"),
             ["Markdown", "PDF"],
@@ -62,3 +60,5 @@ def render_export_section(i18n, chat_manager):
                     st.info("PDF export coming soon!")
             except Exception as e:
                 st.error(f"{i18n.get_text('export_error')}: {str(e)}")
+
+        return language, model, openai_key, openrouter_key

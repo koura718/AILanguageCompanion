@@ -22,7 +22,7 @@ def main():
     st.title(i18n.get_text("app_title"))
 
     # Sidebar
-    language, model, openai_key, openrouter_key = render_sidebar(i18n)
+    language, model, openai_key, openrouter_key = render_sidebar(i18n, chat_manager)
 
     # Update language
     if language == "English" and i18n._current_language != "en":
