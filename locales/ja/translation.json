@@ -14,5 +14,9 @@
     "save_settings": "設定を保存",
     "error_missing_key": "APIキーを入力してください",
     "error_api_call": "APIの呼び出しでエラーが発生しました",
-    "default_system_prompt": "私は役立つアシスタントです。明確で簡潔な応答を提供します。"
+    "default_system_prompt": "私は役立つアシスタントです。明確で簡潔な応答を提供します。",
+    "export_chat": "チャットをエクスポート",
+    "export_format": "エクスポート形式",
+    "export_success": "チャットのエクスポートが完了しました！",
+    "export_error": "エクスポート中にエラーが発生しました"
 }

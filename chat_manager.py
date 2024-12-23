@@ -60,3 +60,36 @@ class ChatManager:
             self.current_session.system_prompt,
             self.current_session.model
         )
+
+    def export_chat_markdown(self) -> str:
+        """Export current chat session as Markdown format."""
+        md_content = []
+
+        # Add header
+        md_content.append(f"# Chat Session - {self.current_session.created_at}\n")
+        md_content.append(f"Model: {self.current_session.model}\n")
+
+        # Add system prompt if exists
+        if self.current_session.system_prompt:
+            md_content.append("## System Prompt\n")
+            md_content.append(f"{self.current_session.system_prompt}\n")
+
+        # Add messages
+        md_content.append("## Messages\n")
+        for msg in self.current_session.messages:
+            role = msg["role"].title()
+            content = msg["content"].replace("\n", "\n  ")
+            md_content.append(f"### {role}\n{content}\n")
+
+        return "\n".join(md_content)
+
+    def save_markdown_file(self) -> str:
+        """Save current chat session as Markdown file and return the filename."""
+        try:
+            filename = f"chat_export_{self.current_session.id}.md"
+            content = self.export_chat_markdown()
+            with open(filename, "w", encoding="utf-8") as f:
+                f.write(content)
+            return filename
+        except Exception as e:
+            raise Exception(f"Failed to save markdown file: {str(e)}")

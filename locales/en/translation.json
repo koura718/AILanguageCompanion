@@ -14,5 +14,9 @@
     "save_settings": "Save Settings",
     "error_missing_key": "Please enter API key",
     "error_api_call": "Error calling API",
-    "default_system_prompt": "You are a helpful assistant. Please provide clear and concise responses."
+    "default_system_prompt": "You are a helpful assistant. Please provide clear and concise responses.",
+    "export_chat": "Export Chat",
+    "export_format": "Export Format",
+    "export_success": "Chat exported successfully!",
+    "export_error": "Error exporting chat"
 }

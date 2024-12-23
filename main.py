@@ -3,7 +3,7 @@ import os
 from chat_manager import ChatManager
 from llm_client import LLMClient
 from i18n_utils import I18nManager
-from ui_components import render_message, render_sidebar
+from ui_components import render_message, render_sidebar, render_export_section
 
 # Initialize session state
 if "chat_manager" not in st.session_state:
@@ -23,7 +23,7 @@ def main():
 
     # Sidebar
     language, model, openai_key, openrouter_key = render_sidebar(i18n)
-    
+
     # Update language
     if language == "English" and i18n._current_language != "en":
         i18n.set_language("en")
@@ -51,12 +51,15 @@ def main():
             i18n.get_text("chat_history"),
             ["New Chat"] + [f"Chat {session.created_at}" for session in chat_manager.history]
         )
-        
+
         if selected_chat != "New Chat":
             chat_id = chat_manager.history[
                 [f"Chat {session.created_at}" for session in chat_manager.history].index(selected_chat)
             ].id
             chat_manager.load_chat(chat_id)
+
+    # Export section
+    render_export_section(i18n, chat_manager)
 
     # Display chat messages
     for message in chat_manager.get_messages(include_system=False):
