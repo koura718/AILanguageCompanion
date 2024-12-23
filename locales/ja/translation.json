@@ -1,0 +1,18 @@
+{
+    "app_title": "MyChatMe",
+    "language": "言語",
+    "system_prompt": "システムプロンプト",
+    "chat_placeholder": "メッセージを入力してください...",
+    "send": "送信",
+    "clear_chat": "チャットをクリア",
+    "model_selection": "モデルを選択",
+    "chat_history": "チャット履歴",
+    "new_chat": "新規チャット",
+    "settings": "設定",
+    "api_key_openai": "OpenAI APIキー",
+    "api_key_openrouter": "OpenRouter APIキー",
+    "save_settings": "設定を保存",
+    "error_missing_key": "APIキーを入力してください",
+    "error_api_call": "APIの呼び出しでエラーが発生しました",
+    "default_system_prompt": "私は役立つアシスタントです。明確で簡潔な応答を提供します。"
+}

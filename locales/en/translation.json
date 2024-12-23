@@ -1,0 +1,18 @@
+{
+    "app_title": "MyChatMe",
+    "language": "Language",
+    "system_prompt": "System Prompt",
+    "chat_placeholder": "Type your message here...",
+    "send": "Send",
+    "clear_chat": "Clear Chat",
+    "model_selection": "Select Model",
+    "chat_history": "Chat History",
+    "new_chat": "New Chat",
+    "settings": "Settings",
+    "api_key_openai": "OpenAI API Key",
+    "api_key_openrouter": "OpenRouter API Key",
+    "save_settings": "Save Settings",
+    "error_missing_key": "Please enter API key",
+    "error_api_call": "Error calling API",
+    "default_system_prompt": "You are a helpful assistant. Please provide clear and concise responses."
+}
