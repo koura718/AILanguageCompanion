@@ -37,15 +37,21 @@ class OpenRouterClient:
                 response = requests.post(
                     f"{self.base_url}/chat/completions",
                     headers=headers,
-                    json=data
+                    json=data,
+                    timeout=30  # Added timeout
                 )
 
-                # Print full response for debugging
-                print(f"OpenRouter Status Code: {response.status_code}")
-                print(f"OpenRouter Response: {response.text}\n")
-
                 if response.status_code == 429:
-                    wait_time = self.retry_delay * (2 ** retries)  # Exponential backoff
+                    error_data = response.json()
+                    error_message = error_data.get('error', {}).get('message', 'Rate limit exceeded')
+                    print(f"Rate limit error: {error_message}")
+
+                    # Check if it's a provider-specific rate limit
+                    if 'metadata' in error_data.get('error', {}):
+                        provider = error_data['error']['metadata'].get('provider_name', 'Unknown')
+                        raise Exception(f"Rate limit exceeded for provider: {provider}")
+
+                    wait_time = self.retry_delay * (2 ** retries)
                     print(f"Rate limit exceeded. Waiting {wait_time} seconds before retry...")
                     time.sleep(wait_time)
                     retries += 1
@@ -68,17 +74,13 @@ class OpenRouterClient:
             except requests.exceptions.RequestException as e:
                 print(f"OpenRouter Request Error: {str(e)}")
                 last_error = e
-                if "429" not in str(e):  # Only retry on rate limit errors
-                    break
                 retries += 1
-                time.sleep(self.retry_delay * (2 ** retries))
+                if retries < self.max_retries:
+                    time.sleep(self.retry_delay * (2 ** retries))
             except ValueError as e:
                 print(f"OpenRouter Value Error: {str(e)}")
                 last_error = e
-                if "rate" not in str(e).lower():  # Only retry on rate limit errors
-                    break
-                retries += 1
-                time.sleep(self.retry_delay * (2 ** retries))
+                break
             except Exception as e:
                 print(f"OpenRouter Unexpected Error: {str(e)}")
                 last_error = e
@@ -86,4 +88,6 @@ class OpenRouterClient:
 
         # If all retries failed or other error occurred
         error_msg = str(last_error) if last_error else "Maximum retries exceeded"
+        if "Rate limit exceeded" in error_msg:
+            raise Exception(f"OpenRouter rate limit exceeded. Please try again later or switch to a different model.")
         raise Exception(f"OpenRouter API error: {error_msg}")

@@ -115,13 +115,16 @@ def main():
                     response = model_map[model](messages)
                 except Exception as e:
                     error_msg = str(e)
-                    if "API key" in error_msg:
+                    if "Rate limit exceeded" in error_msg:
+                        if "provider" in error_msg:
+                            show_notification(f"{i18n.get_text('error_rate_limit')} ({error_msg})", "warning")
+                        else:
+                            show_notification(i18n.get_text("error_rate_limit"), "warning")
+                    elif "API key" in error_msg:
                         if model == "GPT-4":
                             show_notification(i18n.get_text("error_model_switch_openai"), "error")
                         else:
                             show_notification(i18n.get_text("error_model_switch_openrouter"), "error")
-                    elif "rate" in error_msg.lower():
-                        show_notification(i18n.get_text("error_rate_limit"), "warning")
                     elif "network" in error_msg.lower():
                         show_notification(i18n.get_text("error_network"), "error")
                     else:
