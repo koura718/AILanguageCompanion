@@ -5,6 +5,19 @@ from llm_client import LLMClient
 from i18n_utils import I18nManager
 from ui_components import render_message, render_sidebar
 
+# Page configuration
+st.set_page_config(
+    page_title="MyChatMe",
+    page_icon="🤖",
+    layout="wide",
+    initial_sidebar_state="expanded",
+    menu_items={
+        "Get Help": None,
+        "Report a bug": None,
+        "About": "MyChatMe - Multilingual AI Chat Application"
+    }
+)
+
 # Initialize session state
 if "chat_manager" not in st.session_state:
     st.session_state.chat_manager = ChatManager()
@@ -12,6 +25,8 @@ if "llm_client" not in st.session_state:
     st.session_state.llm_client = LLMClient()
 if "i18n" not in st.session_state:
     st.session_state.i18n = I18nManager()
+if "sidebar_state" not in st.session_state:
+    st.session_state.sidebar_state = "expanded"
 
 # Main application
 def main():
@@ -73,6 +88,9 @@ def main():
             # Add AI response
             chat_manager.add_message("assistant", response)
             render_message("assistant", response)
+
+            # Keep sidebar expanded after chat
+            st.session_state.sidebar_state = "expanded"
         except Exception as e:
             st.error(f"{i18n.get_text('error_api_call')}: {str(e)}")
 
