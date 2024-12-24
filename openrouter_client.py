@@ -32,17 +32,31 @@ class OpenRouterClient:
                 headers=headers,
                 json=data
             )
+
+            # Print full response for debugging
+            print(f"OpenRouter Status Code: {response.status_code}")
+            print(f"OpenRouter Response: {response.text}")
+
             response.raise_for_status()
 
             response_data = response.json()
-            if not response_data.get('choices') or not response_data['choices'][0].get('message'):
-                raise ValueError(f"Invalid response format from OpenRouter: {response_data}")
+            if "error" in response_data:
+                raise ValueError(f"OpenRouter API returned error: {response_data['error']}")
+
+            if not response_data.get('choices'):
+                raise ValueError("No choices in OpenRouter API response")
+
+            if not response_data['choices'][0].get('message'):
+                raise ValueError("No message in OpenRouter API response choice")
 
             return response_data['choices'][0]['message']['content']
 
         except requests.exceptions.RequestException as e:
+            print(f"OpenRouter Request Error: {str(e)}")
             raise Exception(f"OpenRouter API request failed: {str(e)}")
         except ValueError as e:
+            print(f"OpenRouter Value Error: {str(e)}")
             raise Exception(f"OpenRouter API response error: {str(e)}")
         except Exception as e:
+            print(f"OpenRouter Unexpected Error: {str(e)}")
             raise Exception(f"Unexpected error in OpenRouter API call: {str(e)}")
