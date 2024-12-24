@@ -1,12 +1,14 @@
 import os
 from dataclasses import dataclass
 
+
 @dataclass
 class Config:
     # the newest OpenAI model is "gpt-4o" which was released May 13, 2024.
     OPENAI_MODEL = "gpt-4o"
     GEMINI_MODEL = "google/gemini-2.0-flash-exp:free"
-    CLAUDE_MODEL = "anthropic/claude-3-sonnet:free"
+    # CLAUDE_MODEL = "anthropic/claude-3-sonnet:free"
+    CLAUDE_MODEL = "anthropic/claude-3.5-sonnet"
     OPENROUTER_API_BASE = "https://openrouter.ai/api/v1"
 
     SUPPORTED_LANGUAGES = ["en", "ja"]
