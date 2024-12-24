@@ -33,18 +33,19 @@ def render_sidebar(i18n, chat_manager):
     with sidebar:
         st.title(i18n.get_text("settings"))
 
-        # Language selection
+        # Language selection - デフォルトを日本語に変更
         language = st.selectbox(
             i18n.get_text("language"),
             ["English", "日本語"],
-            index=0 if i18n._current_language == "en" else 1,
+            index=1,  # Changed from 0 to 1 to make Japanese default
             key="language_selector"
         )
 
-        # Model selection
+        # Model selection - デフォルトをGemini-2.0に変更
         model = st.selectbox(
             i18n.get_text("model_selection"),
             ["GPT-4", "Gemini-2.0", "Claude-3.5"],
+            index=1,  # Changed from 0 to 1 to make Gemini-2.0 default
             key="model_selection"
         )
 

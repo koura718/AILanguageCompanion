@@ -12,7 +12,7 @@ class Config:
     OPENROUTER_API_BASE = "https://openrouter.ai/api/v1"
 
     SUPPORTED_LANGUAGES = ["en", "ja"]
-    DEFAULT_LANGUAGE = "en"
+    DEFAULT_LANGUAGE = "ja"  # Changed from "en" to "ja"
 
     # Chat context settings
     MAX_HISTORY_CHATS = 10
