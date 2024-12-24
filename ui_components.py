@@ -29,18 +29,6 @@ def render_sidebar(i18n, chat_manager):
             key="model_selection"
         )
 
-        # API Keys
-        openai_key = st.text_input(
-            i18n.get_text("api_key_openai"),
-            type="password",
-            key="openai_key"
-        )
-        openrouter_key = st.text_input(
-            i18n.get_text("api_key_openrouter"),
-            type="password",
-            key="openrouter_key"
-        )
-
         st.markdown("---")
 
         # Export section
@@ -61,4 +49,4 @@ def render_sidebar(i18n, chat_manager):
             except Exception as e:
                 st.error(f"{i18n.get_text('export_error')}: {str(e)}")
 
-        return language, model, openai_key, openrouter_key
+        return language, model

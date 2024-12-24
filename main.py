@@ -22,7 +22,7 @@ def main():
     st.title(i18n.get_text("app_title"))
 
     # Sidebar
-    language, model, openai_key, openrouter_key = render_sidebar(i18n, chat_manager)
+    language, model = render_sidebar(i18n, chat_manager)
 
     # Update language
     if language == "English" and i18n._current_language != "en":
@@ -31,12 +31,6 @@ def main():
     elif language == "日本語" and i18n._current_language != "ja":
         i18n.set_language("ja")
         st.rerun()
-
-    # Update API keys
-    if openai_key:
-        os.environ["OPENAI_API_KEY"] = openai_key
-    if openrouter_key:
-        os.environ["OPENROUTER_API_KEY"] = openrouter_key
 
     # System prompt
     system_prompt = st.text_area(
