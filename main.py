@@ -24,20 +24,37 @@ if "chat_manager" not in st.session_state:
     st.session_state.chat_manager = ChatManager()
 if "llm_client" not in st.session_state:
     st.session_state.llm_client = LLMClient()
+    # Enable test mode by default
+    st.session_state.llm_client.set_test_mode(True)
 if "i18n" not in st.session_state:
     st.session_state.i18n = I18nManager()
 if "sidebar_state" not in st.session_state:
     st.session_state.sidebar_state = "expanded"
 if "test_mode" not in st.session_state:
-    st.session_state.test_mode = False
+    st.session_state.test_mode = True  # Enable test mode by default
 
-# Main application
+# Add automatic error test execution
+if "error_test_executed" not in st.session_state:
+    st.session_state.error_test_executed = False
+
 def main():
     i18n = st.session_state.i18n
     chat_manager = st.session_state.chat_manager
     llm_client = st.session_state.llm_client
 
     st.title(i18n.get_text("app_title"))
+
+    # Automatically execute error test
+    if not st.session_state.error_test_executed:
+        chat_manager.add_message("user", "test_error api_key")
+        messages = chat_manager.get_messages()
+        try:
+            response = llm_client.chat_openai(messages)
+        except Exception as e:
+            error_msg = str(e)
+            if "API key" in error_msg:
+                show_notification(i18n.get_text("error_model_switch_openai"), "error")
+        st.session_state.error_test_executed = True
 
     # Check API keys
     if not Config.get_openai_key():
