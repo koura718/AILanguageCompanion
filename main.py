@@ -43,44 +43,108 @@ def render_template_manager(i18n):
             template_names = [f"{t['name']} ({t['created_at']})" for t in templates]
             selected_template = st.selectbox(
                 i18n.get_text("select_template"),
-                [""] + template_names
+                [""] + template_names,
+                key="template_selector"
             )
 
             if selected_template:
                 template = templates[template_names.index(selected_template) - 1]
-                st.text_area(
+
+                # 選択したテンプレートの内容をフォームに表示
+                new_template_name = st.text_input(
+                    i18n.get_text("template_name"),
+                    value=template["name"],
+                    key=f"edit_name_{template['id']}"
+                )
+                new_template_content = st.text_area(
                     i18n.get_text("template_content"),
                     value=template["content"],
-                    key="selected_template_content",
-                    height=100,
-                    disabled=True
+                    key=f"edit_content_{template['id']}"
                 )
-                if st.button(i18n.get_text("delete_template")):
-                    if st.session_state.template_manager.delete_template(template["id"]):
-                        show_notification(i18n.get_text("template_deleted"), "success")
-                        st.rerun()
+                new_template_description = st.text_input(
+                    i18n.get_text("template_description"),
+                    value=template.get("description", ""),
+                    key=f"edit_description_{template['id']}"
+                )
+
+                col1, col2 = st.columns(2)
+                with col1:
+                    if st.button(i18n.get_text("delete_template")):
+                        if st.session_state.template_manager.delete_template(template["id"]):
+                            show_notification(i18n.get_text("template_deleted"), "success")
+                            st.rerun()
+                with col2:
+                    if st.button(i18n.get_text("save_template")):
+                        try:
+                            if st.session_state.template_manager.update_template(
+                                template["id"],
+                                name=new_template_name,
+                                content=new_template_content,
+                                description=new_template_description
+                            ):
+                                show_notification(i18n.get_text("template_saved"), "success")
+                                st.rerun()
+                            else:
+                                show_notification(i18n.get_text("template_error"), "error")
+                        except Exception as e:
+                            show_notification(f"{i18n.get_text('template_error')}: {str(e)}", "error")
+            else:
+                # 新規テンプレート作成フォーム
+                new_template_name = st.text_input(
+                    i18n.get_text("template_name"),
+                    key="new_template_name"
+                )
+                new_template_content = st.text_area(
+                    i18n.get_text("template_content"),
+                    key="new_template_content"
+                )
+                new_template_description = st.text_input(
+                    i18n.get_text("template_description"),
+                    key="new_template_description"
+                )
+
+                if st.button(i18n.get_text("save_template")):
+                    try:
+                        if st.session_state.template_manager.add_template(
+                            new_template_name,
+                            new_template_content,
+                            new_template_description
+                        ):
+                            show_notification(i18n.get_text("template_saved"), "success")
+                            st.rerun()
+                        else:
+                            show_notification(i18n.get_text("template_error"), "error")
+                    except Exception as e:
+                        show_notification(f"{i18n.get_text('template_error')}: {str(e)}", "error")
         else:
             st.info(i18n.get_text("no_templates"))
+            # テンプレートが存在しない場合は新規作成フォームのみ表示
+            new_template_name = st.text_input(
+                i18n.get_text("template_name"),
+                key="new_template_name"
+            )
+            new_template_content = st.text_area(
+                i18n.get_text("template_content"),
+                key="new_template_content"
+            )
+            new_template_description = st.text_input(
+                i18n.get_text("template_description"),
+                key="new_template_description"
+            )
 
-        # 新規テンプレート追加フォーム
-        st.markdown("---")
-        new_template_name = st.text_input(i18n.get_text("template_name"))
-        new_template_content = st.text_area(i18n.get_text("template_content"))
-        new_template_description = st.text_input(i18n.get_text("template_description"))
-
-        if st.button(i18n.get_text("save_template")):
-            try:
-                if st.session_state.template_manager.add_template(
-                    new_template_name,
-                    new_template_content,
-                    new_template_description
-                ):
-                    show_notification(i18n.get_text("template_saved"), "success")
-                    st.rerun()
-                else:
-                    show_notification(i18n.get_text("template_error"), "error")
-            except Exception as e:
-                show_notification(f"{i18n.get_text('template_error')}: {str(e)}", "error")
+            if st.button(i18n.get_text("save_template")):
+                try:
+                    if st.session_state.template_manager.add_template(
+                        new_template_name,
+                        new_template_content,
+                        new_template_description
+                    ):
+                        show_notification(i18n.get_text("template_saved"), "success")
+                        st.rerun()
+                    else:
+                        show_notification(i18n.get_text("template_error"), "error")
+                except Exception as e:
+                    show_notification(f"{i18n.get_text('template_error')}: {str(e)}", "error")
 
 def main():
     i18n = st.session_state.i18n

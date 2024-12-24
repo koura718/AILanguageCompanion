@@ -69,8 +69,13 @@ class PromptTemplateManager:
             return True
         return False
 
-    def update_template(self, template_id: str, name: str = None, 
-                       content: str = None, description: str = None) -> bool:
+    def update_template(
+        self,
+        template_id: str,
+        name: str | None = None,
+        content: str | None = None,
+        description: str | None = None
+    ) -> bool:
         """テンプレートを更新"""
         if template_id not in self._templates:
             return False
