@@ -3,6 +3,11 @@ from dataclasses import dataclass
 from datetime import datetime
 import json
 from config import Config
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+import os
 
 @dataclass
 class ChatSession:
@@ -128,3 +133,62 @@ class ChatManager:
             return filename
         except Exception as e:
             raise Exception(f"Failed to save markdown file: {str(e)}")
+
+    def export_chat_pdf(self) -> str:
+        """Export current chat session as PDF format."""
+        try:
+            filename = f"chat_export_{self.current_session.id}.pdf"
+            doc = SimpleDocTemplate(filename, pagesize=letter)
+            styles = getSampleStyleSheet()
+
+            # Create custom styles with basic fonts
+            styles.add(ParagraphStyle(
+                name='CustomNormal',
+                parent=styles['Normal'],
+                fontSize=10,
+                leading=14,
+                wordWrap='CJK'  # Enable CJK word wrapping for Japanese text
+            ))
+            styles.add(ParagraphStyle(
+                name='CustomHeading1',
+                parent=styles['Heading1'],
+                fontSize=16,
+                leading=20,
+                wordWrap='CJK'  # Enable CJK word wrapping for Japanese text
+            ))
+
+            story = []
+
+            # Add header
+            story.append(Paragraph(f"Chat Session - {self.current_session.created_at}", styles['CustomHeading1']))
+            story.append(Paragraph(f"Model: {self.current_session.model}", styles['CustomNormal']))
+            story.append(Spacer(1, 12))
+
+            # Add system prompt if exists
+            if self.current_session.system_prompt:
+                story.append(Paragraph("System Prompt", styles['CustomHeading1']))
+                story.append(Paragraph(self.current_session.system_prompt, styles['CustomNormal']))
+                story.append(Spacer(1, 12))
+
+            # Add context summary if exists
+            if self.current_session.context_summary:
+                story.append(Paragraph("Context Summary", styles['CustomHeading1']))
+                story.append(Paragraph(self.current_session.context_summary, styles['CustomNormal']))
+                story.append(Spacer(1, 12))
+
+            # Add messages
+            story.append(Paragraph("Messages", styles['CustomHeading1']))
+            for msg in self.current_session.messages:
+                role = msg["role"].title()
+                content = msg["content"]
+                timestamp = msg.get("timestamp", "")
+
+                story.append(Paragraph(f"{role} ({timestamp})", styles['CustomHeading1']))
+                story.append(Paragraph(content, styles['CustomNormal']))
+                story.append(Spacer(1, 12))
+
+            doc.build(story)
+            return filename
+
+        except Exception as e:
+            raise Exception(f"Failed to save PDF file: {str(e)}")
