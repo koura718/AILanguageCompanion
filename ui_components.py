@@ -54,10 +54,10 @@ def render_sidebar(i18n, chat_manager):
         # Update theme mode if changed
         if theme_mode == "Dark" and st.session_state.theme_mode != "dark":
             st.session_state.theme_mode = "dark"
-            st.experimental_set_query_params(theme=st.session_state.theme_mode)
+            st.query_params["theme"] = "dark"
         elif theme_mode == "Light" and st.session_state.theme_mode != "light":
             st.session_state.theme_mode = "light"
-            st.experimental_set_query_params(theme=st.session_state.theme_mode)
+            st.query_params["theme"] = "light"
 
         # Language selection - デフォルトを日本語に設定
         language = st.selectbox(
