@@ -19,6 +19,14 @@ author = "agent"
 task = "workflow.run"
 args = "save_history"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "save_agent_history"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "streamlit_app"
+
 [[workflows.workflow]]
 name = "save_history"
 author = "agent"
@@ -32,6 +40,35 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "python save_chat_history.py"
+
+[[workflows.workflow]]
+name = "save_agent_history"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python agent_chat_history.py"
+
+[[workflows.workflow]]
+name = "streamlit_app"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "streamlit run main.py"
+waitForPort = 5000
 
 [[ports]]
 localPort = 5000

@@ -1,0 +1,54 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Project specific
+generated-icon.png
+chat_export_*.md
+agent_chat_*.md
+*.log
+
+# Dependencies
+.uv/
+.venv/
+.python-version
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Editor/OS
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Unit test / coverage reports
+.tox/
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
