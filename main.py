@@ -46,14 +46,14 @@ def main():
 
     # Automatically execute error test
     if not st.session_state.error_test_executed:
-        chat_manager.add_message("user", "test_error rate_limit")
+        chat_manager.add_message("user", "test_error network")
         messages = chat_manager.get_messages()
         try:
             response = llm_client.chat_openai(messages)
         except Exception as e:
             error_msg = str(e)
-            if "rate" in error_msg.lower():
-                show_notification(i18n.get_text("error_rate_limit"), "warning")
+            if "network" in error_msg.lower():
+                show_notification(i18n.get_text("error_network"), "error")
         st.session_state.error_test_executed = True
 
     # Check API keys
