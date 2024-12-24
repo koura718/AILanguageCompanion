@@ -1,43 +1,46 @@
 from datetime import datetime
+import os
+import pytz
+from config import Config
 
 def save_agent_chat_history(history):
-    filename = f"agent_chat_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md"
-    
+    """Save agent chat history to a markdown file in the export directory."""
     try:
+        # Create export directory if it doesn't exist
+        os.makedirs("export", exist_ok=True)
+
+        # Get current time in the configured timezone
+        tz = pytz.timezone(Config.DEFAULT_TIMEZONE)
+        current_time = datetime.now(tz)
+
+        filename = f"export/agent_chat_{current_time.strftime('%Y%m%d_%H%M%S')}.md"
+
         with open(filename, "w", encoding="utf-8") as f:
-            f.write("# Agent Chat History\n\n")
-            f.write(f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
-            
+            f.write("# エージェントチャット履歴\n\n")
+            f.write(f"生成日時: {current_time.strftime('%Y-%m-%d %H:%M:%S %Z')}\n\n")
+
             for entry in history:
                 if "User:" in entry:
-                    f.write(f"## User\n{entry.replace('User:', '').strip()}\n\n")
+                    f.write(f"## ユーザー\n{entry.replace('User:', '').strip()}\n\n")
                 elif "Editor:" in entry:
-                    f.write(f"## Agent\n{entry.replace('Editor:', '').strip()}\n\n")
-                    
+                    f.write(f"## エージェント\n{entry.replace('Editor:', '').strip()}\n\n")
+
         return filename
     except Exception as e:
-        raise Exception(f"Failed to save agent chat history: {str(e)}")
-
-# Extract chat history from the provided history
-history = """
-User: 最初のチャットで「モデルの切り替えに失敗しました」エラーです。改善してください
-Editor: モデルの切り替えエラーの問題を改善します。
-
-User: アプリケーションを停止してください。そして次の指示迄待機していてください
-Editor: アプリケーションを停止します。
-アプリケーションを停止し、次の指示をお待ちしています。
-
-User: 開始から今までのチャット履歴をマークダウン形式でテキストファイルに保存してください
-Editor: チャット履歴をマークダウン形式で保存するプログラムを実行します。
-チャット履歴が正常にマークダウンファイルとして保存されました。直近のチャット履歴は `chat_export_20241224_032241.md` に保存されています。
-
-User: 次の指示まで待機してください
-この Agent と 僕の会話の履歴をマークダウン形式でテキストファイルに保存してください
-"""
+        raise Exception(f"エージェントチャット履歴の保存に失敗しました: {str(e)}")
 
 if __name__ == "__main__":
+    # テスト用のチャット履歴
+    history = """
+    User: save_agent_chat_history の使い方を教えてください。
+    Editor: はい、save_agent_chat_historyの使い方を説明します。このツールは会話履歴を保存するために使用します。
+
+    User: 保存先はどこですか？
+    Editor: exportディレクトリに保存されます。ディレクトリが存在しない場合は自動的に作成されます。
+    """
+
     try:
         saved_file = save_agent_chat_history(history.split('\n'))
-        print(f"Chat history saved to: {saved_file}")
+        print(f"チャット履歴を保存しました: {saved_file}")
     except Exception as e:
-        print(f"Error: {str(e)}")
+        print(f"エラー: {str(e)}")
