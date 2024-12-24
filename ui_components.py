@@ -12,14 +12,22 @@ def render_message(role: str, content: str):
             st.write(content)
 
 def render_sidebar(i18n, chat_manager):
-    with st.sidebar:
+    # Create a persistent sidebar container
+    sidebar = st.sidebar
+
+    # Ensure sidebar is visible
+    if "sidebar_visibility" not in st.session_state:
+        st.session_state.sidebar_visibility = True
+
+    with sidebar:
         st.title(i18n.get_text("settings"))
 
         # Language selection
         language = st.selectbox(
             i18n.get_text("language"),
             ["English", "日本語"],
-            index=0 if i18n._current_language == "en" else 1
+            index=0 if i18n._current_language == "en" else 1,
+            key="language_selector"
         )
 
         # Model selection
@@ -38,7 +46,7 @@ def render_sidebar(i18n, chat_manager):
             key="export_format"
         )
 
-        if st.button(i18n.get_text("export_chat")):
+        if st.button(i18n.get_text("export_chat"), key="export_button"):
             try:
                 if export_format == "Markdown":
                     filename = chat_manager.save_markdown_file()
