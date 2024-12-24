@@ -5,6 +5,7 @@ from llm_client import LLMClient
 from i18n_utils import I18nManager
 from ui_components import render_message, render_sidebar, show_notification
 from config import Config
+from prompt_template import PromptTemplateManager
 
 # Page configuration
 st.set_page_config(
@@ -30,6 +31,56 @@ if "sidebar_state" not in st.session_state:
     st.session_state.sidebar_state = "expanded"
 if "test_mode" not in st.session_state:
     st.session_state.test_mode = False
+if "template_manager" not in st.session_state:
+    st.session_state.template_manager = PromptTemplateManager()
+
+def render_template_manager(i18n):
+    """プロンプトテンプレート管理セクションを表示"""
+    with st.expander(i18n.get_text("prompt_templates")):
+        # テンプレート一覧表示と選択
+        templates = st.session_state.template_manager.list_templates()
+        if templates:
+            template_names = [f"{t['name']} ({t['created_at']})" for t in templates]
+            selected_template = st.selectbox(
+                i18n.get_text("select_template"),
+                [""] + template_names
+            )
+
+            if selected_template:
+                template = templates[template_names.index(selected_template) - 1]
+                st.text_area(
+                    i18n.get_text("template_content"),
+                    value=template["content"],
+                    key="selected_template_content",
+                    height=100,
+                    disabled=True
+                )
+                if st.button(i18n.get_text("delete_template")):
+                    if st.session_state.template_manager.delete_template(template["id"]):
+                        show_notification(i18n.get_text("template_deleted"), "success")
+                        st.rerun()
+        else:
+            st.info(i18n.get_text("no_templates"))
+
+        # 新規テンプレート追加フォーム
+        st.markdown("---")
+        new_template_name = st.text_input(i18n.get_text("template_name"))
+        new_template_content = st.text_area(i18n.get_text("template_content"))
+        new_template_description = st.text_input(i18n.get_text("template_description"))
+
+        if st.button(i18n.get_text("save_template")):
+            try:
+                if st.session_state.template_manager.add_template(
+                    new_template_name,
+                    new_template_content,
+                    new_template_description
+                ):
+                    show_notification(i18n.get_text("template_saved"), "success")
+                    st.rerun()
+                else:
+                    show_notification(i18n.get_text("template_error"), "error")
+            except Exception as e:
+                show_notification(f"{i18n.get_text('template_error')}: {str(e)}", "error")
 
 def main():
     i18n = st.session_state.i18n
@@ -67,6 +118,9 @@ def main():
     elif language == "日本語" and i18n._current_language != "ja":
         i18n.set_language("ja")
         st.rerun()
+
+    # プロンプトテンプレート管理を表示
+    render_template_manager(i18n)
 
     # System prompt
     system_prompt = st.text_area(

@@ -30,5 +30,16 @@
     "enable_error_test": "Enable Error Test Mode",
     "error_test_enabled": "Error test mode enabled.\nTo test errors, enter these commands:\n- test_error api_key: API key error\n- test_error rate_limit: Rate limit error\n- test_error network: Network error",
     "error_test_disabled": "Error test mode disabled.",
-    "theme_mode": "Theme Mode"
+    "theme_mode": "Theme Mode",
+    "prompt_templates": "Prompt Templates",
+    "template_name": "Template Name",
+    "template_content": "Template Content",
+    "template_description": "Description (Optional)",
+    "save_template": "Save Template",
+    "delete_template": "Delete Template",
+    "template_saved": "Template saved successfully!",
+    "template_deleted": "Template deleted successfully!",
+    "template_error": "Error processing template",
+    "select_template": "Select Template",
+    "no_templates": "No templates available"
 }

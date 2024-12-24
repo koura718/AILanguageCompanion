@@ -31,6 +31,15 @@
     "error_test_enabled": "エラーテストモードが有効になりました。\nエラーをテストするには以下のコマンドを入力してください：\n- test_error api_key：APIキーエラー\n- test_error rate_limit：レート制限エラー\n- test_error network：ネットワークエラー",
     "error_test_disabled": "エラーテストモードが無効になりました。",
     "theme_mode": "テーマ設定",
-    "primary_color": "プライマリカラー",
-    "font_family": "フォントファミリー"
+    "prompt_templates": "プロンプトテンプレート",
+    "template_name": "テンプレート名",
+    "template_content": "テンプレート内容",
+    "template_description": "説明（任意）",
+    "save_template": "テンプレートを保存",
+    "delete_template": "テンプレートを削除",
+    "template_saved": "テンプレートを保存しました！",
+    "template_deleted": "テンプレートを削除しました！",
+    "template_error": "テンプレート処理中にエラーが発生しました",
+    "select_template": "テンプレートを選択",
+    "no_templates": "テンプレートがありません"
 }
