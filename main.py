@@ -4,6 +4,7 @@ from chat_manager import ChatManager
 from llm_client import LLMClient
 from i18n_utils import I18nManager
 from ui_components import render_message, render_sidebar
+from config import Config
 
 # Page configuration
 st.set_page_config(
