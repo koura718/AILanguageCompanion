@@ -77,7 +77,7 @@ def render_template_manager(i18n):
                                 del st.session_state.template_selector
                             st.rerun()
                 with col2:
-                    if st.button(i18n.get_text("save_template")):
+                    if st.button(i18n.get_text("save_template"), key=f"save_button_{template['id']}"):
                         try:
                             if st.session_state.template_manager.update_template(
                                 template["id"],
@@ -86,13 +86,16 @@ def render_template_manager(i18n):
                                 description=new_template_description
                             ):
                                 show_notification(i18n.get_text("template_saved"), "success")
+                                # 更新後にセッション状態をクリア
+                                if "template_selector" in st.session_state:
+                                    del st.session_state.template_selector
                                 st.rerun()
                             else:
                                 show_notification(i18n.get_text("template_error"), "error")
                         except Exception as e:
                             show_notification(f"{i18n.get_text('template_error')}: {str(e)}", "error")
 
-        # テンプレートが存在しない場合は新規作成フォームのみ表示
+        # テンプレートが存在しない場合または新規作成モードの場合
         if not templates or not selected_template:
             new_template_name = st.text_input(
                 i18n.get_text("template_name"),
@@ -107,7 +110,7 @@ def render_template_manager(i18n):
                 key="new_template_description"
             )
 
-            if st.button(i18n.get_text("save_template")):
+            if st.button(i18n.get_text("save_template"), key="save_new_template"):
                 try:
                     if st.session_state.template_manager.add_template(
                         new_template_name,
@@ -115,6 +118,10 @@ def render_template_manager(i18n):
                         new_template_description
                     ):
                         show_notification(i18n.get_text("template_saved"), "success")
+                        # 保存後にセッション状態をクリア
+                        for key in list(st.session_state.keys()):
+                            if key.startswith("new_template_"):
+                                del st.session_state[key]
                         st.rerun()
                     else:
                         show_notification(i18n.get_text("template_error"), "error")
