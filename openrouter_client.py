@@ -7,11 +7,16 @@ from config import Config
 class OpenRouterClient:
     def __init__(self):
         self.api_key = Config.get_openrouter_key()
+        if not self.api_key:
+            raise ValueError("OpenRouter API key is not set")
         self.base_url = Config.OPENROUTER_API_BASE
         self.max_retries = 3
         self.retry_delay = 2  # Initial delay in seconds
 
     def create(self, messages: List[Dict[str, str]], model: str = None, response_format: Optional[Dict] = None) -> str:
+        if not self.api_key:
+            raise ValueError("OpenRouter API key is not set")
+
         retries = 0
         last_error = None
 

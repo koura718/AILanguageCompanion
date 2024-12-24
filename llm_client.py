@@ -14,9 +14,12 @@ class LLMClient:
     def initialize_clients(self):
         """Initialize API clients with proper error handling"""
         try:
-            if Config.get_openai_key():
-                self.openai_client = openai.OpenAI(api_key=Config.get_openai_key())
-            if Config.get_openrouter_key():
+            openai_key = Config.get_openai_key()
+            openrouter_key = Config.get_openrouter_key()
+
+            if openai_key:
+                self.openai_client = openai.OpenAI(api_key=openai_key)
+            if openrouter_key:
                 self.openrouter_client = OpenRouterClient()
         except Exception as e:
             print(f"Error initializing API clients: {str(e)}")
@@ -28,14 +31,13 @@ class LLMClient:
     def chat_openai(self, messages: List[Dict[str, str]]) -> str:
         """Send chat completion request to OpenAI API"""
         if not self.openai_client:
-            raise Exception("OpenAI client not initialized. Please check your API key.")
+            raise ValueError("OpenAI client not initialized. Please check your API key.")
 
         if self.test_mode:
-            # Simulate different error scenarios for testing
             if messages and "test_error" in messages[-1].get("content", "").lower():
                 error_type = messages[-1]["content"].lower()
                 if "api_key" in error_type:
-                    raise Exception("Invalid API key")
+                    raise ValueError("Invalid API key")
                 elif "rate_limit" in error_type:
                     raise Exception("Rate limit exceeded")
                 elif "network" in error_type:
@@ -47,21 +49,34 @@ class LLMClient:
                 messages=messages
             )
             return response.choices[0].message.content
-        except Exception as e:
+        except openai.APIError as e:
             raise Exception(f"OpenAI API error: {str(e)}")
 
     def chat_gemini(self, messages: List[Dict[str, str]]) -> str:
         """Send chat completion request to Gemini via OpenRouter"""
         if not self.openrouter_client:
-            raise Exception("OpenRouter client not initialized. Please check your API key.")
+            raise ValueError("OpenRouter client not initialized. Please check your API key.")
 
         try:
             return self.openrouter_client.create(
-                messages,
+                messages=messages,
                 model=Config.GEMINI_MODEL
             )
         except Exception as e:
-            raise Exception(f"OpenRouter API error: {str(e)}")
+            raise Exception(f"Gemini API error: {str(e)}")
+
+    def chat_claude(self, messages: List[Dict[str, str]]) -> str:
+        """Send chat completion request to Claude via OpenRouter"""
+        if not self.openrouter_client:
+            raise ValueError("OpenRouter client not initialized. Please check your API key.")
+
+        try:
+            return self.openrouter_client.create(
+                messages=messages,
+                model=Config.CLAUDE_MODEL
+            )
+        except Exception as e:
+            raise Exception(f"Claude API error: {str(e)}")
 
     def generate_context_summary(self, messages: List[Dict[str, str]]) -> str:
         """Generate a summary of the conversation context."""
@@ -91,16 +106,3 @@ class LLMClient:
         except Exception as e:
             print(f"Failed to generate context summary: {str(e)}")
             return ""  # Return empty string if summarization fails
-
-    def chat_claude(self, messages: List[Dict[str, str]]) -> str:
-        """Send chat completion request to Claude via OpenRouter"""
-        if not self.openrouter_client:
-            raise Exception("OpenRouter client not initialized. Please check your API key.")
-
-        try:
-            return self.openrouter_client.create(
-                messages,
-                model=Config.CLAUDE_MODEL
-            )
-        except Exception as e:
-            raise Exception(f"Claude API error: {str(e)}")
