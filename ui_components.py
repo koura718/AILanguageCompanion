@@ -77,11 +77,12 @@ def render_sidebar(i18n, chat_manager):
 
         if st.button(i18n.get_text("export_chat"), key="export_button"):
             try:
+                timezone = st.session_state.get("timezone", Config.DEFAULT_TIMEZONE)
                 if export_format == "Markdown":
-                    filename = chat_manager.save_markdown_file()
+                    filename = chat_manager.save_markdown_file(timezone=timezone)
                     show_notification(f"{i18n.get_text('export_success')} ({filename})", "success")
                 else:
-                    filename = chat_manager.export_chat_pdf()
+                    filename = chat_manager.export_chat_pdf(timezone=timezone)
                     show_notification(f"{i18n.get_text('export_success')} ({filename})", "success")
             except Exception as e:
                 show_notification(f"{i18n.get_text('export_error')}: {str(e)}", "error")
