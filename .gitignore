@@ -24,6 +24,9 @@ chat_export_*.md
 agent_chat_*.md
 *.log
 
+# Export directory
+export/
+
 # Dependencies
 .uv/
 .venv/

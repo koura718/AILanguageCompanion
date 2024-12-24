@@ -138,7 +138,10 @@ class ChatManager:
     def save_markdown_file(self) -> str:
         """Save current chat session as Markdown file and return the filename."""
         try:
-            filename = f"chat_export_{self.current_session.id}.md"
+            # Create export directory if it doesn't exist
+            os.makedirs("export", exist_ok=True)
+
+            filename = f"export/chat_export_{self.current_session.id}.md"
             content = self.export_chat_markdown()
             with open(filename, "w", encoding="utf-8") as f:
                 f.write(content)
@@ -149,7 +152,10 @@ class ChatManager:
     def export_chat_pdf(self) -> str:
         """Export current chat session as PDF format."""
         try:
-            filename = f"chat_export_{self.current_session.id}.pdf"
+            # Create export directory if it doesn't exist
+            os.makedirs("export", exist_ok=True)
+
+            filename = f"export/chat_export_{self.current_session.id}.pdf"
             doc = SimpleDocTemplate(filename, pagesize=A4)
             styles = getSampleStyleSheet()
 
