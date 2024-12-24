@@ -51,13 +51,35 @@ def render_sidebar(i18n, chat_manager):
             key="theme_selector"
         )
 
-        # Update theme mode if changed
+        # Update theme mode and apply theme settings
         if theme_mode == "Dark" and st.session_state.theme_mode != "dark":
             st.session_state.theme_mode = "dark"
             st.query_params["theme"] = "dark"
+            # Dark theme settings
+            st.markdown("""
+                <style>
+                    :root {
+                        --primary-color: #FF6B6B;
+                        --background-color: #0E1117;
+                        --secondary-background-color: #262730;
+                        --text-color: #FAFAFA;
+                    }
+                </style>
+                """, unsafe_allow_html=True)
         elif theme_mode == "Light" and st.session_state.theme_mode != "light":
             st.session_state.theme_mode = "light"
             st.query_params["theme"] = "light"
+            # Light theme settings
+            st.markdown("""
+                <style>
+                    :root {
+                        --primary-color: #FF4B4B;
+                        --background-color: #FFFFFF;
+                        --secondary-background-color: #F0F2F6;
+                        --text-color: #262730;
+                    }
+                </style>
+                """, unsafe_allow_html=True)
 
         # Language selection - デフォルトを日本語に設定
         language = st.selectbox(
