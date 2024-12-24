@@ -82,7 +82,9 @@ def main():
             messages = chat_manager.get_messages()
             if model == "GPT-4":
                 response = llm_client.chat_openai(messages)
-            else:
+            elif model == "Claude-3.5":
+                response = llm_client.chat_claude(messages)
+            else:  # Gemini-2.0
                 response = llm_client.chat_gemini(messages)
 
             # Add AI response

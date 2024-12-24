@@ -33,7 +33,7 @@ def render_sidebar(i18n, chat_manager):
         # Model selection
         model = st.selectbox(
             i18n.get_text("model_selection"),
-            ["GPT-4", "Gemini-2.0"],
+            ["GPT-4", "Gemini-2.0", "Claude-3.5"],
             key="model_selection"
         )
 

@@ -49,3 +49,12 @@ class LLMClient:
         except Exception as e:
             print(f"Failed to generate context summary: {str(e)}")
             return ""  # Return empty string if summarization fails
+
+    def chat_claude(self, messages: List[Dict[str, str]]) -> str:
+        try:
+            return self.openrouter_client.create(
+                messages,
+                model=Config.CLAUDE_MODEL
+            )
+        except Exception as e:
+            raise Exception(f"Claude API error: {str(e)}")

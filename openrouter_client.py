@@ -11,7 +11,7 @@ class OpenRouterClient:
         self.max_retries = 3
         self.retry_delay = 2  # Initial delay in seconds
 
-    def create(self, messages: List[Dict[str, str]], response_format: Optional[Dict] = None) -> str:
+    def create(self, messages: List[Dict[str, str]], model: str = None, response_format: Optional[Dict] = None) -> str:
         retries = 0
         last_error = None
 
@@ -25,7 +25,7 @@ class OpenRouterClient:
                 }
 
                 data = {
-                    "model": Config.GEMINI_MODEL,
+                    "model": model or Config.GEMINI_MODEL,
                     "messages": messages,
                     "temperature": 0.7,
                     "max_tokens": 1000
