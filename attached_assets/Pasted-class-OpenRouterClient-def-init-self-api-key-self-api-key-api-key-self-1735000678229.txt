@@ -1,0 +1,61 @@
+class OpenRouterClient:
+    def __init__(self, api_key):
+        self.api_key = api_key
+        self.base_url = "https://openrouter.ai/api/v1/chat/completions"
+
+    def create(self, model, messages, response_format=None):
+        try:
+            headers = {
+                "Authorization": f"Bearer {self.api_key}",
+                "HTTP-Referer": "https://localhost:5000",
+                "X-Title": "ChatMe Application",
+                "Content-Type": "application/json"
+            }
+
+            data = {
+                "model": model,
+                "messages": messages
+            }
+
+            if response_format:
+                data["response_format"] = response_format
+
+            response = requests.post(
+                self.base_url,
+                headers=headers,
+                json=data  # Use json parameter instead of data for automatic JSON encoding
+            )
+            response.raise_for_status()
+
+            response_data = response.json()
+            if not response_data.get('choices') or not response_data['choices'][0].get('message'):
+                raise ValueError(f"Invalid response format from OpenRouter: {response_data}")
+
+            return response_data['choices'][0]['message']['content']
+
+        except requests.exceptions.RequestException as e:
+            logger.error(f"OpenRouter API request error: {str(e)}")
+            return None
+        except (KeyError, ValueError) as e:
+            logger.error(f"OpenRouter API response error: {str(e)}")
+            return None
+        except Exception as e:
+            logger.error(f"Unexpected error in OpenRouter API call: {str(e)}")
+            return None
+
+# Initialize OpenRouter client
+openrouter_client = OpenRouterClient(api_key=os.environ.get("OPENROUTER_API_KEY"))
+
+# Available LLM models
+LLM_MODELS = {
+    "OpenAI": {
+        "name": "OpenAI GPT-4",
+        "model": "gpt-4o",
+        "client": "openai"
+    },
+    "OpenRouter": {
+        "name": "Gemini 2.0 Flash",
+        "model": "google/gemini-2.0-flash-exp:free",
+        "client": "openrouter"
+    }
+}
