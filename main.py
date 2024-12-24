@@ -3,7 +3,7 @@ import os
 from chat_manager import ChatManager
 from llm_client import LLMClient
 from i18n_utils import I18nManager
-from ui_components import render_message, render_sidebar
+from ui_components import render_message, render_sidebar, show_notification
 from config import Config
 
 # Page configuration
@@ -39,9 +39,9 @@ def main():
 
     # Check API keys
     if not Config.get_openai_key():
-        st.warning(i18n.get_text("error_missing_key") + " (OpenAI)")
+        show_notification(i18n.get_text("error_missing_key") + " (OpenAI)", "warning")
     if not Config.get_openrouter_key():
-        st.warning(i18n.get_text("error_missing_key") + " (OpenRouter)")
+        show_notification(i18n.get_text("error_missing_key") + " (OpenRouter)", "warning")
 
     # Sidebar
     language, model = render_sidebar(i18n, chat_manager)
@@ -97,9 +97,24 @@ def main():
             }
 
             if model in model_map:
-                response = model_map[model](messages)
+                try:
+                    response = model_map[model](messages)
+                except Exception as e:
+                    error_msg = str(e)
+                    if "API key" in error_msg:
+                        if model == "GPT-4":
+                            show_notification(i18n.get_text("error_model_switch_openai"), "error")
+                        else:
+                            show_notification(i18n.get_text("error_model_switch_openrouter"), "error")
+                    elif "rate" in error_msg.lower():
+                        show_notification(i18n.get_text("error_rate_limit"), "warning")
+                    elif "network" in error_msg.lower():
+                        show_notification(i18n.get_text("error_network"), "error")
+                    else:
+                        show_notification(f"{i18n.get_text('error_model_switch')}: {error_msg}", "error")
+                    return
             else:
-                st.error(f"Invalid model selection: {model}")
+                show_notification(f"Invalid model selection: {model}", "error")
                 return
 
             if response:
@@ -109,13 +124,16 @@ def main():
 
                 # Generate and update context summary periodically
                 if len(chat_manager.current_session.messages) % 5 == 0:  # Every 5 messages
-                    summary = llm_client.generate_context_summary(chat_manager.current_session.messages)
-                    chat_manager.update_context_summary(summary)
+                    try:
+                        summary = llm_client.generate_context_summary(chat_manager.current_session.messages)
+                        chat_manager.update_context_summary(summary)
+                    except Exception as e:
+                        print(f"Failed to generate context summary: {str(e)}")
 
             # Keep sidebar expanded after chat
             st.session_state.sidebar_state = "expanded"
         except Exception as e:
-            st.error(f"{i18n.get_text('error_api_call')}: {str(e)}")
+            show_notification(f"{i18n.get_text('error_api_call')}: {str(e)}", "error")
 
     # Clear chat button
     if st.button(i18n.get_text("clear_chat")):

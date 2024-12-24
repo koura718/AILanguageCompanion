@@ -11,6 +11,17 @@ def render_message(role: str, content: str):
         with st.chat_message(role):
             st.write(content)
 
+def show_notification(message: str, type: str = "info", duration: int = 3):
+    """Show an elegant notification toast."""
+    if type == "error":
+        st.error(message, icon="🚨")
+    elif type == "success":
+        st.success(message, icon="✅")
+    elif type == "warning":
+        st.warning(message, icon="⚠️")
+    else:
+        st.info(message, icon="ℹ️")
+
 def render_sidebar(i18n, chat_manager):
     # Create a persistent sidebar container
     sidebar = st.sidebar
@@ -50,11 +61,11 @@ def render_sidebar(i18n, chat_manager):
             try:
                 if export_format == "Markdown":
                     filename = chat_manager.save_markdown_file()
-                    st.success(f"{i18n.get_text('export_success')} ({filename})")
+                    show_notification(f"{i18n.get_text('export_success')} ({filename})", "success")
                 else:
                     # PDF export will be implemented later
-                    st.info("PDF export coming soon!")
+                    show_notification("PDF export coming soon!", "info")
             except Exception as e:
-                st.error(f"{i18n.get_text('export_error')}: {str(e)}")
+                show_notification(f"{i18n.get_text('export_error')}: {str(e)}", "error")
 
         return language, model
