@@ -89,6 +89,11 @@ def main():
             chat_manager.add_message("assistant", response)
             render_message("assistant", response)
 
+            # Generate and update context summary periodically
+            if len(chat_manager.current_session.messages) % 5 == 0:  # Every 5 messages
+                summary = llm_client.generate_context_summary(chat_manager.current_session.messages)
+                chat_manager.update_context_summary(summary)
+
             # Keep sidebar expanded after chat
             st.session_state.sidebar_state = "expanded"
         except Exception as e:

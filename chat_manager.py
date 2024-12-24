@@ -1,7 +1,8 @@
-from typing import List, Dict
+from typing import List, Dict, Optional
 from dataclasses import dataclass
 from datetime import datetime
 import json
+from config import Config
 
 @dataclass
 class ChatSession:
@@ -10,6 +11,12 @@ class ChatSession:
     system_prompt: str
     model: str
     created_at: str
+    context_summary: Optional[str] = None
+    context_messages: List[Dict[str, str]] = None
+
+    def __post_init__(self):
+        if self.context_messages is None:
+            self.context_messages = []
 
 class ChatManager:
     def __init__(self):
@@ -22,21 +29,30 @@ class ChatManager:
             messages=[],
             system_prompt=system_prompt,
             model=model,
-            created_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            created_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            context_summary=None,
+            context_messages=[]
         )
 
     def new_chat(self, system_prompt: str, model: str) -> None:
         if self.current_session.messages:
             self.history.append(self.current_session)
-            if len(self.history) > 10:
+            if len(self.history) > Config.MAX_HISTORY_CHATS:
                 self.history.pop(0)
         self.current_session = self._create_new_session(system_prompt, model)
 
     def add_message(self, role: str, content: str) -> None:
-        self.current_session.messages.append({
+        message = {
             "role": role,
-            "content": content
-        })
+            "content": content,
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+        self.current_session.messages.append(message)
+        self.current_session.context_messages.append(message)
+
+        # Keep only the most recent context window messages
+        if len(self.current_session.context_messages) > Config.CONTEXT_WINDOW_MESSAGES:
+            self.current_session.context_messages.pop(0)
 
     def get_messages(self, include_system: bool = True) -> List[Dict[str, str]]:
         messages = []
@@ -45,8 +61,21 @@ class ChatManager:
                 "role": "system",
                 "content": self.current_session.system_prompt
             })
-        messages.extend(self.current_session.messages)
+
+        # Add context summary if available
+        if self.current_session.context_summary:
+            messages.append({
+                "role": "system",
+                "content": f"Previous conversation context: {self.current_session.context_summary}"
+            })
+
+        # Add recent context messages
+        messages.extend(self.current_session.context_messages)
         return messages
+
+    def update_context_summary(self, summary: str) -> None:
+        """Update the conversation context summary."""
+        self.current_session.context_summary = summary
 
     def load_chat(self, session_id: str) -> bool:
         for session in self.history:
@@ -74,12 +103,18 @@ class ChatManager:
             md_content.append("## System Prompt\n")
             md_content.append(f"{self.current_session.system_prompt}\n")
 
+        # Add context summary if exists
+        if self.current_session.context_summary:
+            md_content.append("## Context Summary\n")
+            md_content.append(f"{self.current_session.context_summary}\n")
+
         # Add messages
         md_content.append("## Messages\n")
         for msg in self.current_session.messages:
             role = msg["role"].title()
             content = msg["content"].replace("\n", "\n  ")
-            md_content.append(f"### {role}\n{content}\n")
+            timestamp = msg.get("timestamp", "")
+            md_content.append(f"### {role} ({timestamp})\n{content}\n")
 
         return "\n".join(md_content)
 
