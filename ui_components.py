@@ -34,18 +34,36 @@ def render_sidebar(i18n, chat_manager):
     if "sidebar_visibility" not in st.session_state:
         st.session_state.sidebar_visibility = True
 
-    # Initialize timezone in session state if not exists
+    # Initialize states
     if "timezone" not in st.session_state:
         st.session_state.timezone = Config.DEFAULT_TIMEZONE
+    if "theme_mode" not in st.session_state:
+        st.session_state.theme_mode = "light"
 
     with sidebar:
         st.title(i18n.get_text("settings"))
+
+        # Theme selection
+        theme_mode = st.selectbox(
+            i18n.get_text("theme_mode"),
+            ["Light", "Dark"],
+            index=0 if st.session_state.theme_mode == "light" else 1,
+            key="theme_selector"
+        )
+
+        # Update theme mode if changed
+        if theme_mode == "Dark" and st.session_state.theme_mode != "dark":
+            st.session_state.theme_mode = "dark"
+            st.experimental_set_query_params(theme=st.session_state.theme_mode)
+        elif theme_mode == "Light" and st.session_state.theme_mode != "light":
+            st.session_state.theme_mode = "light"
+            st.experimental_set_query_params(theme=st.session_state.theme_mode)
 
         # Language selection - デフォルトを日本語に設定
         language = st.selectbox(
             i18n.get_text("language"),
             ["English", "日本語"],
-            index=1,  # Changed from 0 to 1 to make Japanese default
+            index=1,
             key="language_selector"
         )
 
@@ -53,7 +71,7 @@ def render_sidebar(i18n, chat_manager):
         model = st.selectbox(
             i18n.get_text("model_selection"),
             ["GPT-4", "Gemini-2.0", "Claude-3.5"],
-            index=1,  # Changed from 0 to 1 to make Gemini-2.0 default
+            index=1,
             key="model_selection"
         )
 

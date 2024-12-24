@@ -29,5 +29,6 @@
     "developer_mode": "Developer Mode",
     "enable_error_test": "Enable Error Test Mode",
     "error_test_enabled": "Error test mode enabled.\nTo test errors, enter these commands:\n- test_error api_key: API key error\n- test_error rate_limit: Rate limit error\n- test_error network: Network error",
-    "error_test_disabled": "Error test mode disabled."
+    "error_test_disabled": "Error test mode disabled.",
+    "theme_mode": "Theme Mode"
 }

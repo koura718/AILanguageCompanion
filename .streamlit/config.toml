@@ -4,8 +4,15 @@ address = "0.0.0.0"
 port = 5000
 
 [theme]
+# Light theme (default)
 primaryColor = "#FF4B4B"
 backgroundColor = "#FFFFFF"
 secondaryBackgroundColor = "#F0F2F6"
 textColor = "#262730"
-font = "sans serif"
+font = "Noto Sans JP"
+
+# Dark theme
+darkPrimaryColor = "#FF6B6B"
+darkBackgroundColor = "#0E1117"
+darkSecondaryBackgroundColor = "#262730"
+darkTextColor = "#FAFAFA"
