@@ -4,9 +4,11 @@ from datetime import datetime
 import json
 from config import Config
 from reportlab.lib import colors
-from reportlab.lib.pagesizes import letter
+from reportlab.lib.pagesizes import letter, A4
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.cidfonts import UnicodeCIDFont
 import os
 
 @dataclass
@@ -27,6 +29,16 @@ class ChatManager:
     def __init__(self):
         self.current_session: ChatSession = self._create_new_session()
         self.history: List[ChatSession] = []
+        self._setup_pdf_fonts()
+
+    def _setup_pdf_fonts(self):
+        """Set up CID fonts for PDF generation with Japanese support"""
+        try:
+            # Register the Japanese font
+            pdfmetrics.registerFont(UnicodeCIDFont('HeiseiMin-W3'))
+            pdfmetrics.registerFont(UnicodeCIDFont('HeiseiKakuGo-W5'))
+        except Exception as e:
+            print(f"Warning: Could not register PDF fonts: {str(e)}")
 
     def _create_new_session(self, system_prompt: str = "", model: str = "gpt-4o") -> ChatSession:
         return ChatSession(
@@ -138,53 +150,53 @@ class ChatManager:
         """Export current chat session as PDF format."""
         try:
             filename = f"chat_export_{self.current_session.id}.pdf"
-            doc = SimpleDocTemplate(filename, pagesize=letter)
+            doc = SimpleDocTemplate(filename, pagesize=A4)
             styles = getSampleStyleSheet()
 
-            # Create custom styles with basic fonts
+            # Create custom styles with Japanese font support
             styles.add(ParagraphStyle(
-                name='CustomNormal',
+                name='JapaneseText',
                 parent=styles['Normal'],
+                fontName='HeiseiMin-W3',
                 fontSize=10,
-                leading=14,
-                wordWrap='CJK'  # Enable CJK word wrapping for Japanese text
+                leading=14
             ))
             styles.add(ParagraphStyle(
-                name='CustomHeading1',
+                name='JapaneseHeading',
                 parent=styles['Heading1'],
+                fontName='HeiseiKakuGo-W5',
                 fontSize=16,
-                leading=20,
-                wordWrap='CJK'  # Enable CJK word wrapping for Japanese text
+                leading=20
             ))
 
             story = []
 
             # Add header
-            story.append(Paragraph(f"Chat Session - {self.current_session.created_at}", styles['CustomHeading1']))
-            story.append(Paragraph(f"Model: {self.current_session.model}", styles['CustomNormal']))
+            story.append(Paragraph(f"Chat Session - {self.current_session.created_at}", styles['JapaneseHeading']))
+            story.append(Paragraph(f"Model: {self.current_session.model}", styles['JapaneseText']))
             story.append(Spacer(1, 12))
 
             # Add system prompt if exists
             if self.current_session.system_prompt:
-                story.append(Paragraph("System Prompt", styles['CustomHeading1']))
-                story.append(Paragraph(self.current_session.system_prompt, styles['CustomNormal']))
+                story.append(Paragraph("System Prompt", styles['JapaneseHeading']))
+                story.append(Paragraph(self.current_session.system_prompt, styles['JapaneseText']))
                 story.append(Spacer(1, 12))
 
             # Add context summary if exists
             if self.current_session.context_summary:
-                story.append(Paragraph("Context Summary", styles['CustomHeading1']))
-                story.append(Paragraph(self.current_session.context_summary, styles['CustomNormal']))
+                story.append(Paragraph("Context Summary", styles['JapaneseHeading']))
+                story.append(Paragraph(self.current_session.context_summary, styles['JapaneseText']))
                 story.append(Spacer(1, 12))
 
             # Add messages
-            story.append(Paragraph("Messages", styles['CustomHeading1']))
+            story.append(Paragraph("Messages", styles['JapaneseHeading']))
             for msg in self.current_session.messages:
                 role = msg["role"].title()
                 content = msg["content"]
                 timestamp = msg.get("timestamp", "")
 
-                story.append(Paragraph(f"{role} ({timestamp})", styles['CustomHeading1']))
-                story.append(Paragraph(content, styles['CustomNormal']))
+                story.append(Paragraph(f"{role} ({timestamp})", styles['JapaneseHeading']))
+                story.append(Paragraph(content, styles['JapaneseText']))
                 story.append(Spacer(1, 12))
 
             doc.build(story)
