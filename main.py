@@ -72,6 +72,9 @@ def render_template_manager(i18n):
                     if st.button(i18n.get_text("delete_template")):
                         if st.session_state.template_manager.delete_template(template["id"]):
                             show_notification(i18n.get_text("template_deleted"), "success")
+                            # 削除後にセッション状態をクリア
+                            if "template_selector" in st.session_state:
+                                del st.session_state.template_selector
                             st.rerun()
                 with col2:
                     if st.button(i18n.get_text("save_template")):
@@ -88,37 +91,9 @@ def render_template_manager(i18n):
                                 show_notification(i18n.get_text("template_error"), "error")
                         except Exception as e:
                             show_notification(f"{i18n.get_text('template_error')}: {str(e)}", "error")
-            else:
-                # 新規テンプレート作成フォーム
-                new_template_name = st.text_input(
-                    i18n.get_text("template_name"),
-                    key="new_template_name"
-                )
-                new_template_content = st.text_area(
-                    i18n.get_text("template_content"),
-                    key="new_template_content"
-                )
-                new_template_description = st.text_input(
-                    i18n.get_text("template_description"),
-                    key="new_template_description"
-                )
 
-                if st.button(i18n.get_text("save_template")):
-                    try:
-                        if st.session_state.template_manager.add_template(
-                            new_template_name,
-                            new_template_content,
-                            new_template_description
-                        ):
-                            show_notification(i18n.get_text("template_saved"), "success")
-                            st.rerun()
-                        else:
-                            show_notification(i18n.get_text("template_error"), "error")
-                    except Exception as e:
-                        show_notification(f"{i18n.get_text('template_error')}: {str(e)}", "error")
-        else:
-            st.info(i18n.get_text("no_templates"))
-            # テンプレートが存在しない場合は新規作成フォームのみ表示
+        # テンプレートが存在しない場合は新規作成フォームのみ表示
+        if not templates or not selected_template:
             new_template_name = st.text_input(
                 i18n.get_text("template_name"),
                 key="new_template_name"
