@@ -36,6 +36,12 @@ def main():
 
     st.title(i18n.get_text("app_title"))
 
+    # Check API keys
+    if not Config.get_openai_key():
+        st.warning(i18n.get_text("error_missing_key") + " (OpenAI)")
+    if not Config.get_openrouter_key():
+        st.warning(i18n.get_text("error_missing_key") + " (OpenRouter)")
+
     # Sidebar
     language, model = render_sidebar(i18n, chat_manager)
 
@@ -78,23 +84,32 @@ def main():
         render_message("user", prompt)
 
         try:
-            # Get AI response
+            # Get AI response based on selected model
             messages = chat_manager.get_messages()
-            if model == "GPT-4":
-                response = llm_client.chat_openai(messages)
-            elif model == "Claude-3.5":
-                response = llm_client.chat_claude(messages)
-            else:  # Gemini-2.0
-                response = llm_client.chat_gemini(messages)
+            response = None
 
-            # Add AI response
-            chat_manager.add_message("assistant", response)
-            render_message("assistant", response)
+            # Model selection logic
+            model_map = {
+                "GPT-4": llm_client.chat_openai,
+                "Gemini-2.0": llm_client.chat_gemini,
+                "Claude-3.5": llm_client.chat_claude
+            }
 
-            # Generate and update context summary periodically
-            if len(chat_manager.current_session.messages) % 5 == 0:  # Every 5 messages
-                summary = llm_client.generate_context_summary(chat_manager.current_session.messages)
-                chat_manager.update_context_summary(summary)
+            if model in model_map:
+                response = model_map[model](messages)
+            else:
+                st.error(f"Invalid model selection: {model}")
+                return
+
+            if response:
+                # Add AI response
+                chat_manager.add_message("assistant", response)
+                render_message("assistant", response)
+
+                # Generate and update context summary periodically
+                if len(chat_manager.current_session.messages) % 5 == 0:  # Every 5 messages
+                    summary = llm_client.generate_context_summary(chat_manager.current_session.messages)
+                    chat_manager.update_context_summary(summary)
 
             # Keep sidebar expanded after chat
             st.session_state.sidebar_state = "expanded"

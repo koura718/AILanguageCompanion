@@ -6,10 +6,25 @@ from openrouter_client import OpenRouterClient
 
 class LLMClient:
     def __init__(self):
-        self.openai_client = openai.OpenAI(api_key=Config.get_openai_key())
-        self.openrouter_client = OpenRouterClient()
+        self.openai_client = None
+        self.openrouter_client = None
+        self.initialize_clients()
+
+    def initialize_clients(self):
+        """Initialize API clients with proper error handling"""
+        try:
+            if Config.get_openai_key():
+                self.openai_client = openai.OpenAI(api_key=Config.get_openai_key())
+            if Config.get_openrouter_key():
+                self.openrouter_client = OpenRouterClient()
+        except Exception as e:
+            print(f"Error initializing API clients: {str(e)}")
 
     def chat_openai(self, messages: List[Dict[str, str]]) -> str:
+        """Send chat completion request to OpenAI API"""
+        if not self.openai_client:
+            raise Exception("OpenAI client not initialized. Please check your API key.")
+
         try:
             response = self.openai_client.chat.completions.create(
                 model=Config.OPENAI_MODEL,
@@ -20,13 +35,24 @@ class LLMClient:
             raise Exception(f"OpenAI API error: {str(e)}")
 
     def chat_gemini(self, messages: List[Dict[str, str]]) -> str:
+        """Send chat completion request to Gemini via OpenRouter"""
+        if not self.openrouter_client:
+            raise Exception("OpenRouter client not initialized. Please check your API key.")
+
         try:
-            return self.openrouter_client.create(messages)
+            return self.openrouter_client.create(
+                messages,
+                model=Config.GEMINI_MODEL
+            )
         except Exception as e:
             raise Exception(f"OpenRouter API error: {str(e)}")
 
     def generate_context_summary(self, messages: List[Dict[str, str]]) -> str:
         """Generate a summary of the conversation context."""
+        if not self.openai_client:
+            print("OpenAI client not initialized. Skipping context summary.")
+            return ""
+
         try:
             summary_prompt = {
                 "role": "system",
@@ -51,6 +77,10 @@ class LLMClient:
             return ""  # Return empty string if summarization fails
 
     def chat_claude(self, messages: List[Dict[str, str]]) -> str:
+        """Send chat completion request to Claude via OpenRouter"""
+        if not self.openrouter_client:
+            raise Exception("OpenRouter client not initialized. Please check your API key.")
+
         try:
             return self.openrouter_client.create(
                 messages,
