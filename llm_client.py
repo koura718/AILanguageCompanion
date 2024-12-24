@@ -8,6 +8,7 @@ class LLMClient:
     def __init__(self):
         self.openai_client = None
         self.openrouter_client = None
+        self.test_mode = False  # For testing error scenarios
         self.initialize_clients()
 
     def initialize_clients(self):
@@ -20,10 +21,25 @@ class LLMClient:
         except Exception as e:
             print(f"Error initializing API clients: {str(e)}")
 
+    def set_test_mode(self, enabled: bool = True):
+        """Enable or disable test mode for simulating errors"""
+        self.test_mode = enabled
+
     def chat_openai(self, messages: List[Dict[str, str]]) -> str:
         """Send chat completion request to OpenAI API"""
         if not self.openai_client:
             raise Exception("OpenAI client not initialized. Please check your API key.")
+
+        if self.test_mode:
+            # Simulate different error scenarios for testing
+            if messages and "test_error" in messages[-1].get("content", "").lower():
+                error_type = messages[-1]["content"].lower()
+                if "api_key" in error_type:
+                    raise Exception("Invalid API key")
+                elif "rate_limit" in error_type:
+                    raise Exception("Rate limit exceeded")
+                elif "network" in error_type:
+                    raise Exception("Network connection error")
 
         try:
             response = self.openai_client.chat.completions.create(
