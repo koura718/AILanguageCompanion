@@ -34,12 +34,77 @@ def render_sidebar(i18n, chat_manager):
     if "sidebar_visibility" not in st.session_state:
         st.session_state.sidebar_visibility = True
 
-    # Initialize timezone in session state if not exists
+    # Initialize states
     if "timezone" not in st.session_state:
         st.session_state.timezone = Config.DEFAULT_TIMEZONE
+    if "primary_color" not in st.session_state:
+        st.session_state.primary_color = "#FF4B4B"
+    if "font_family" not in st.session_state:
+        st.session_state.font_family = "sans serif"
 
     with sidebar:
         st.title(i18n.get_text("settings"))
+
+        # Custom theme settings
+        st.subheader(i18n.get_text("theme_mode"))
+
+        # Primary color picker
+        primary_color = st.color_picker(
+            "プライマリカラー",
+            st.session_state.primary_color,
+            key="primary_color_picker"
+        )
+        if primary_color != st.session_state.primary_color:
+            st.session_state.primary_color = primary_color
+            # Update primary color
+            st.markdown(
+                f"""
+                <style>
+                    .stProgress > div > div > div > div {{
+                        background-color: {primary_color};
+                    }}
+                    .stButton > button {{
+                        border-color: {primary_color};
+                        color: {primary_color};
+                    }}
+                    .stButton > button:hover {{
+                        background-color: {primary_color};
+                        color: white;
+                    }}
+                </style>
+                """,
+                unsafe_allow_html=True
+            )
+
+        # Font selector
+        font_family = st.selectbox(
+            "フォントファミリー",
+            [
+                "sans serif",
+                "Noto Sans JP",
+                "Roboto",
+                "Helvetica",
+                "Arial",
+                "YuGothic"
+            ],
+            index=["sans serif", "Noto Sans JP", "Roboto", "Helvetica", "Arial", "YuGothic"].index(st.session_state.font_family),
+            key="font_selector"
+        )
+        if font_family != st.session_state.font_family:
+            st.session_state.font_family = font_family
+            # Update font family
+            st.markdown(
+                f"""
+                <style>
+                    html, body, [class*="st-"] {{
+                        font-family: {font_family}, sans-serif;
+                    }}
+                </style>
+                """,
+                unsafe_allow_html=True
+            )
+
+        st.markdown("---")
 
         # Language selection - デフォルトを日本語に設定
         language = st.selectbox(

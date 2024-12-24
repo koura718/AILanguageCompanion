@@ -30,5 +30,7 @@
     "enable_error_test": "エラーテストモードを有効にする",
     "error_test_enabled": "エラーテストモードが有効になりました。\nエラーをテストするには以下のコマンドを入力してください：\n- test_error api_key：APIキーエラー\n- test_error rate_limit：レート制限エラー\n- test_error network：ネットワークエラー",
     "error_test_disabled": "エラーテストモードが無効になりました。",
-    "theme_mode": "テーマモード"
+    "theme_mode": "テーマ設定",
+    "primary_color": "プライマリカラー",
+    "font_family": "フォントファミリー"
 }
