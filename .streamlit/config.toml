@@ -23,13 +23,3 @@ font = "sans serif"
 
 [browser]
 gatherUsageStats = false
-
-[client]
-# List of custom fonts that will be available in the app
-customFonts = [
-    "Noto Sans JP",
-    "YuGothic",
-    "Roboto",
-    "Helvetica",
-    "Arial"
-]
