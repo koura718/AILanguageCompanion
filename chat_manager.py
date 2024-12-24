@@ -10,6 +10,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.cidfonts import UnicodeCIDFont
 import os
+import pytz
 
 @dataclass
 class ChatSession:
@@ -39,6 +40,20 @@ class ChatManager:
             pdfmetrics.registerFont(UnicodeCIDFont('HeiseiKakuGo-W5'))
         except Exception as e:
             print(f"Warning: Could not register PDF fonts: {str(e)}")
+
+    def _format_datetime(self, dt_str: str, timezone: str = None) -> str:
+        """Format datetime string according to the specified timezone"""
+        if not timezone:
+            timezone = Config.DEFAULT_TIMEZONE
+
+        try:
+            dt = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
+            tz = pytz.timezone(timezone)
+            local_dt = pytz.utc.localize(dt).astimezone(tz)
+            return local_dt.strftime("%Y-%m-%d %H:%M:%S %Z")
+        except Exception as e:
+            print(f"Error formatting datetime: {str(e)}")
+            return dt_str
 
     def _create_new_session(self, system_prompt: str = "", model: str = "gpt-4o") -> ChatSession:
         return ChatSession(
@@ -71,7 +86,7 @@ class ChatManager:
         if len(self.current_session.context_messages) > Config.CONTEXT_WINDOW_MESSAGES:
             self.current_session.context_messages.pop(0)
 
-    def get_messages(self, include_system: bool = True) -> List[Dict[str, str]]:
+    def get_messages(self, include_system: bool = True, timezone: str = None) -> List[Dict[str, str]]:
         messages = []
         if include_system and self.current_session.system_prompt:
             messages.append({
@@ -86,8 +101,13 @@ class ChatManager:
                 "content": f"Previous conversation context: {self.current_session.context_summary}"
             })
 
-        # Add recent context messages
-        messages.extend(self.current_session.context_messages)
+        # Add recent context messages with formatted timestamps
+        for msg in self.current_session.context_messages:
+            formatted_msg = msg.copy()
+            if "timestamp" in formatted_msg:
+                formatted_msg["timestamp"] = self._format_datetime(formatted_msg["timestamp"], timezone)
+            messages.append(formatted_msg)
+
         return messages
 
     def update_context_summary(self, summary: str) -> None:
@@ -107,12 +127,13 @@ class ChatManager:
             self.current_session.model
         )
 
-    def export_chat_markdown(self) -> str:
+    def export_chat_markdown(self, timezone: str = None) -> str:
         """Export current chat session as Markdown format."""
         md_content = []
 
-        # Add header
-        md_content.append(f"# Chat Session - {self.current_session.created_at}\n")
+        # Add header with timezone-aware timestamp
+        created_at = self._format_datetime(self.current_session.created_at, timezone)
+        md_content.append(f"# Chat Session - {created_at}\n")
         md_content.append(f"Model: {self.current_session.model}\n")
 
         # Add system prompt if exists
@@ -125,31 +146,31 @@ class ChatManager:
             md_content.append("## Context Summary\n")
             md_content.append(f"{self.current_session.context_summary}\n")
 
-        # Add messages
+        # Add messages with timezone-aware timestamps
         md_content.append("## Messages\n")
         for msg in self.current_session.messages:
             role = msg["role"].title()
             content = msg["content"].replace("\n", "\n  ")
-            timestamp = msg.get("timestamp", "")
+            timestamp = self._format_datetime(msg.get("timestamp", ""), timezone)
             md_content.append(f"### {role} ({timestamp})\n{content}\n")
 
         return "\n".join(md_content)
 
-    def save_markdown_file(self) -> str:
+    def save_markdown_file(self, timezone: str = None) -> str:
         """Save current chat session as Markdown file and return the filename."""
         try:
             # Create export directory if it doesn't exist
             os.makedirs("export", exist_ok=True)
 
             filename = f"export/chat_export_{self.current_session.id}.md"
-            content = self.export_chat_markdown()
+            content = self.export_chat_markdown(timezone)
             with open(filename, "w", encoding="utf-8") as f:
                 f.write(content)
             return filename
         except Exception as e:
             raise Exception(f"Failed to save markdown file: {str(e)}")
 
-    def export_chat_pdf(self) -> str:
+    def export_chat_pdf(self, timezone: str = None) -> str:
         """Export current chat session as PDF format."""
         try:
             # Create export directory if it doesn't exist
@@ -177,8 +198,9 @@ class ChatManager:
 
             story = []
 
-            # Add header
-            story.append(Paragraph(f"Chat Session - {self.current_session.created_at}", styles['JapaneseHeading']))
+            # Add header with timezone-aware timestamp
+            created_at = self._format_datetime(self.current_session.created_at, timezone)
+            story.append(Paragraph(f"Chat Session - {created_at}", styles['JapaneseHeading']))
             story.append(Paragraph(f"Model: {self.current_session.model}", styles['JapaneseText']))
             story.append(Spacer(1, 12))
 
@@ -194,12 +216,12 @@ class ChatManager:
                 story.append(Paragraph(self.current_session.context_summary, styles['JapaneseText']))
                 story.append(Spacer(1, 12))
 
-            # Add messages
+            # Add messages with timezone-aware timestamps
             story.append(Paragraph("Messages", styles['JapaneseHeading']))
             for msg in self.current_session.messages:
                 role = msg["role"].title()
                 content = msg["content"]
-                timestamp = msg.get("timestamp", "")
+                timestamp = self._format_datetime(msg.get("timestamp", ""), timezone)
 
                 story.append(Paragraph(f"{role} ({timestamp})", styles['JapaneseHeading']))
                 story.append(Paragraph(content, styles['JapaneseText']))

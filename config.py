@@ -1,5 +1,6 @@
 import os
 from dataclasses import dataclass
+import pytz
 
 
 @dataclass
@@ -13,6 +14,20 @@ class Config:
 
     SUPPORTED_LANGUAGES = ["en", "ja"]
     DEFAULT_LANGUAGE = "ja"  # Changed from "en" to "ja"
+
+    # Timezone settings
+    DEFAULT_TIMEZONE = "Asia/Tokyo"
+    SUPPORTED_TIMEZONES = [
+        "Asia/Tokyo",
+        "America/New_York",
+        "America/Los_Angeles",
+        "Europe/London",
+        "Europe/Paris",
+        "Asia/Shanghai",
+        "Asia/Singapore",
+        "Australia/Sydney",
+        "Pacific/Auckland"
+    ]
 
     # Chat context settings
     MAX_HISTORY_CHATS = 10

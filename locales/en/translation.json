@@ -9,6 +9,7 @@
     "chat_history": "Chat History",
     "new_chat": "New Chat",
     "settings": "Settings",
+    "timezone": "Timezone",
     "api_key_openai": "OpenAI API Key",
     "api_key_openrouter": "OpenRouter API Key",
     "save_settings": "Save Settings",

@@ -9,6 +9,7 @@
     "chat_history": "チャット履歴",
     "new_chat": "新規チャット",
     "settings": "設定",
+    "timezone": "タイムゾーン",
     "api_key_openai": "OpenAI APIキー",
     "api_key_openrouter": "OpenRouter APIキー",
     "save_settings": "設定を保存",
