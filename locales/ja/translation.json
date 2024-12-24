@@ -23,5 +23,9 @@
     "export_chat": "チャットをエクスポート",
     "export_format": "エクスポート形式",
     "export_success": "チャットのエクスポートが完了しました！",
-    "export_error": "エクスポート中にエラーが発生しました"
+    "export_error": "エクスポート中にエラーが発生しました",
+    "developer_mode": "開発者モード",
+    "enable_error_test": "エラーテストモードを有効にする",
+    "error_test_enabled": "エラーテストモードが有効になりました。\nエラーをテストするには以下のコマンドを入力してください：\n- test_error api_key：APIキーエラー\n- test_error rate_limit：レート制限エラー\n- test_error network：ネットワークエラー",
+    "error_test_disabled": "エラーテストモードが無効になりました。"
 }

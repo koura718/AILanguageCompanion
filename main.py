@@ -51,15 +51,15 @@ def main():
     # Add test mode toggle in sidebar for development
     with st.sidebar:
         st.markdown("---")
-        st.write("開発者モード")
-        test_mode = st.checkbox("エラーテストモードを有効にする", value=st.session_state.test_mode)
+        st.header(i18n.get_text("developer_mode"))
+        test_mode = st.checkbox(i18n.get_text("enable_error_test"), value=st.session_state.test_mode)
         if test_mode != st.session_state.test_mode:
             st.session_state.test_mode = test_mode
             llm_client.set_test_mode(test_mode)
             if test_mode:
-                show_notification("エラーテストモードが有効になりました。\nエラーをテストするには以下のコマンドを入力してください：\n- test_error api_key\n- test_error rate_limit\n- test_error network", "info")
+                show_notification(i18n.get_text("error_test_enabled"), "info")
             else:
-                show_notification("エラーテストモードが無効になりました。", "info")
+                show_notification(i18n.get_text("error_test_disabled"), "info")
 
     # Update language
     if language == "English" and i18n._current_language != "en":
